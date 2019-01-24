@@ -265,15 +265,28 @@ func (b *Bot) incomingUpdate(upd *Update) {
 			return
 		}
 
-		if m.MigrateTo != 0 {
-			if handler, ok := b.handlers[OnMigration]; ok {
-				if handler, ok := handler.(func(int64, int64)); ok {
-					// i'm not 100% sure that any of the values
-					// won't be cached, so I pass them all in:
-					go func(b *Bot, handler func(int64, int64), from, to int64) {
+		if m.MigrateFrom != 0 {
+			if handler, ok := b.handlers[OnMigrationFrom]; ok {
+				if handler, ok := handler.(func(int64)); ok {
+					go func(b *Bot, handler func(int64), from int64) {
 						defer b.deferDebug()
-						handler(from, to)
-					}(b, handler, m.MigrateFrom, m.MigrateTo)
+						handler(from)
+					}(b, handler, m.MigrateFrom)
+
+				} else {
+					panic("telebot: migration handler is bad")
+				}
+			}
+
+			return
+		}
+		if m.MigrateTo != 0 {
+			if handler, ok := b.handlers[OnMigrationTo]; ok {
+				if handler, ok := handler.(func(int64)); ok {
+					go func(b *Bot, handler func(int64), to int64) {
+						defer b.deferDebug()
+						handler(to)
+					}(b, handler, m.MigrateTo)
 
 				} else {
 					panic("telebot: migration handler is bad")

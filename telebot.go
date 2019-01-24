@@ -67,7 +67,8 @@ const (
 	// upon switching as its ID will change.
 	//
 	// Handler: func(from, to int64)
-	OnMigration = "\amigration"
+	OnMigrationTo   = "\amigration"
+	OnMigrationFrom = "\amigration"
 
 	// Will fire on callback requests.
 	//
